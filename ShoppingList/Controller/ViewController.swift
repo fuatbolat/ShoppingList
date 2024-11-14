@@ -12,7 +12,11 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        navigationController?.navigationBar.topItem?.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItem))
+    }
+    
+    @objc func addItem() {
+        performSegue(withIdentifier: "toDetailsVc", sender: self)
     }
 
 
