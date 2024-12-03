@@ -19,8 +19,59 @@ class DetailsViewController: UIViewController, UIImagePickerControllerDelegate &
     
     @IBOutlet weak var sizeTextField: UITextField!
     
+    var secilenUrun = ""
+    var secilenId : UUID?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if secilenUrun != "" {
+            if let uuidString = secilenId?.uuidString{
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let context = appDelegate.persistentContainer.viewContext
+                
+                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Shopping")
+                
+                fetchRequest.predicate = NSPredicate(format: "id == %@", uuidString)
+                fetchRequest.returnsObjectsAsFaults = false
+                        
+                do{
+                   let sonuc = try context.fetch(fetchRequest)
+                    
+                    if sonuc.count > 0 {
+                        for sonuclar in sonuc as! [NSManagedObject] {
+                            if let name = sonuclar.value(forKey: "name") as? String{
+                                productNameTextField.text = name
+                            }
+                            if let price = sonuclar.value(forKey: "price") as? Int{
+                                priceTextField.text = String(price)
+                            }
+                            if let size = sonuclar.value(forKey: "size") as? String{
+                                sizeTextField.text = size
+                            }
+                            if let gorsel = sonuclar.value(forKey: "image ") as? Data{
+                                let image = UIImage(data: gorsel)
+                                imageView.image =  image
+                            }
+                        }
+                    }
+                    
+                    
+                }
+                catch {
+                    print("Error while fetching data")
+                }
+            
+                
+            }
+        }
+        else{
+            productNameTextField.text = ""
+            priceTextField.text = ""
+            sizeTextField.text = ""
+            
+        }
+        
         
         
        
@@ -87,8 +138,9 @@ class DetailsViewController: UIViewController, UIImagePickerControllerDelegate &
         }catch{
             print("an error occured while saving")
         }
-        
-        
+        //
+        NotificationCenter.default.post(name: NSNotification.Name("getShopping"), object: nil)
+        self.navigationController?.popViewController(animated: true)
         
         
     }
